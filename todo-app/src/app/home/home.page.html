@@ -55,7 +55,7 @@
       <ion-checkbox
         slot="start"
         [(ngModel)]="task.completed"
-        (ionChange)="toggleTask(task)"
+        (ionChange)="toggleTask(task,i)"
       ></ion-checkbox>
       <ion-button
         slot="end"

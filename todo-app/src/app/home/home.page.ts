@@ -8,6 +8,7 @@ import {
 } from 'firebase/remote-config';
 import { initializeApp } from 'firebase/app';
 import { ChangeDetectorRef } from '@angular/core';
+import { TaskService, Task } from '../services/task.service';
 
 @Component({
   selector: 'app-home',
@@ -16,28 +17,21 @@ import { ChangeDetectorRef } from '@angular/core';
   standalone: false,
 })
 export class HomePage implements OnInit {
-  tasks: {
-    name: string;
-    completed: boolean;
-    category: string;
-    priority: string;
-  }[] = [];
-  filteredTasks: {
-    name: string;
-    completed: boolean;
-    category: string;
-    priority: string;
-  }[] = [];
-  categoryFilterEnabled = false; // Feature flag state
+  tasks: Task[] = [];
+  filteredTasks: Task[] = [];
   categories: string[] = [];
   newTask: string = '';
-  taskCategory: string = '';
   newCategory: string = '';
+  taskCategory: string = '';
   taskPriority: string = 'low';
   selectedCategory: string = 'all';
+  categoryFilterEnabled = false;
   private remoteConfig: RemoteConfig;
 
-  constructor(private changeDetector: ChangeDetectorRef) {
+  constructor(
+    private changeDetector: ChangeDetectorRef,
+    private taskService: TaskService
+  ) {
     const firebaseConfig = {
       apiKey: environment.firebaseConfig.apiKey,
       authDomain: environment.firebaseConfig.authDomain,
@@ -74,72 +68,71 @@ export class HomePage implements OnInit {
     }
   }
   // Tasks
+  loadInitialData() {
+    this.tasks = this.taskService.getTasks();
+    this.categories = this.taskService.getCategories();
+    this.filterTasks();
+  }
+
   addTask() {
-    if (this.newTask.trim() !== '') {
-      this.tasks.push({
+    if (this.newTask.trim()) {
+      const task: Task = {
         name: this.newTask,
         completed: false,
         category: this.taskCategory,
         priority: this.taskPriority,
-      });
+      };
+      this.taskService.addTask(task);
       this.newTask = '';
       this.taskCategory = '';
       this.taskPriority = 'low';
-      this.filterTasks();
+      this.loadInitialData();
     }
   }
 
-  toggleTask(task: { completed: boolean }) {
-    task.completed = !task.completed;
+  toggleTask(task: Task, index: number) {
+    this.taskService.toggleTaskCompletion(index);
+    this.loadInitialData();
   }
 
   deleteTask(index: number) {
-    this.tasks.splice(index, 1);
-    this.filterTasks();
+    this.taskService.deleteTask(index);
+    this.loadInitialData();
   }
 
-  // Categories
   addCategory() {
-    if (
-      this.newCategory.trim() !== '' &&
-      !this.categories.includes(this.newCategory)
-    ) {
-      this.categories.push(this.newCategory);
-      this.newCategory = '';
+    if (this.newCategory.trim()) {
+      const success = this.taskService.addCategory(this.newCategory.trim());
+      if (success) {
+        this.newCategory = '';
+        this.loadInitialData();
+      } else {
+        alert('Category already exists!');
+      }
     }
   }
 
   editCategory(index: number) {
-    const updatedCategory = prompt('Update category:', this.categories[index]);
-    if (
-      updatedCategory &&
-      updatedCategory.trim() !== '' &&
-      !this.categories.includes(updatedCategory)
-    ) {
-      const oldCategory = this.categories[index];
-      this.categories[index] = updatedCategory;
-
-      // Update task that had the old category
-      this.tasks.forEach((task) => {
-        if (task.category === oldCategory) {
-          task.category = updatedCategory;
-        }
-      });
-      this.filterTasks();
+    const oldCategory = this.categories[index];
+    const newCategory = prompt('Update category:', oldCategory);
+    if (newCategory && newCategory.trim()) {
+      const success = this.taskService.editCategory(
+        oldCategory,
+        newCategory.trim()
+      );
+      if (success) {
+        this.loadInitialData();
+      } else {
+        alert('Category already exists or is invalid!');
+      }
     }
   }
 
+  // Delete category
   deleteCategory(index: number) {
     const categoryToDelete = this.categories[index];
-    this.categories.splice(index, 1);
-
-    // Delete category from tasks
-    this.tasks.forEach((task) => {
-      if (task.category === categoryToDelete) {
-        task.category = '';
-      }
-    });
-    this.filterTasks();
+    this.taskService.deleteCategory(categoryToDelete);
+    this.loadInitialData();
   }
 
   // Filter tasks

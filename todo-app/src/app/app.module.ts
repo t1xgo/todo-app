@@ -7,7 +7,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { environment } from '../environments/environment';
-import { FirebaseRemoteConfig } from '@capacitor-firebase/remote-config';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireRemoteConfigModule } from '@angular/fire/compat/remote-config';
 
