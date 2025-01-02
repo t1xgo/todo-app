@@ -9,6 +9,7 @@ import {
 import { initializeApp } from 'firebase/app';
 import { ChangeDetectorRef } from '@angular/core';
 import { TaskService, Task } from '../services/task.service';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -30,7 +31,8 @@ export class HomePage implements OnInit {
 
   constructor(
     private changeDetector: ChangeDetectorRef,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private alertCtrl: AlertController
   ) {
     const firebaseConfig = {
       apiKey: environment.firebaseConfig.apiKey,
@@ -47,7 +49,35 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
+    this.showIntroAlert();
     this.initializeRemoteConfig();
+    this.loadInitialData();
+  }
+
+  async showIntroAlert() {
+    const alert = await this.alertCtrl.create({
+      header: 'Welcome to the app!',
+      subHeader: 'Here are some things you can do:',
+      message: '',
+      buttons: ['OK'],
+    });
+
+    await alert.present();
+
+    await alert.present();
+
+    const alertMessage = document.querySelector('.alert-message');
+    if (alertMessage) {
+      alertMessage.innerHTML = `
+      <ul style="text-align: left; font-size: 16px;">
+        <li>Manage categories.</li><br>
+        <li>Filter tasks by category.</li><br>
+        <li>Add tasks with a name, category, and priority.</li><br>
+        <li>Mark tasks as completed using the checkboxes.</li><br>
+        <li>Delete tasks or categories with the trash icon.</li>
+      </ul>
+    `;
+    }
   }
 
   async initializeRemoteConfig() {
