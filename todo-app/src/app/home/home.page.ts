@@ -16,13 +16,24 @@ import { ChangeDetectorRef } from '@angular/core';
   standalone: false,
 })
 export class HomePage implements OnInit {
-  tasks: { name: string; completed: boolean; category: string }[] = [];
-  filteredTasks: { name: string; completed: boolean; category: string }[] = [];
+  tasks: {
+    name: string;
+    completed: boolean;
+    category: string;
+    priority: string;
+  }[] = [];
+  filteredTasks: {
+    name: string;
+    completed: boolean;
+    category: string;
+    priority: string;
+  }[] = [];
   categoryFilterEnabled = false; // Feature flag state
   categories: string[] = [];
   newTask: string = '';
   taskCategory: string = '';
   newCategory: string = '';
+  taskPriority: string = 'low';
   selectedCategory: string = 'all';
   private remoteConfig: RemoteConfig;
 
@@ -69,9 +80,11 @@ export class HomePage implements OnInit {
         name: this.newTask,
         completed: false,
         category: this.taskCategory,
+        priority: this.taskPriority,
       });
       this.newTask = '';
       this.taskCategory = '';
+      this.taskPriority = 'low';
       this.filterTasks();
     }
   }

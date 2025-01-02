@@ -49,6 +49,9 @@
       <ion-label [class.completed]="task.completed">
         {{ task.name }} <span *ngIf="task.category">({{ task.category }})</span>
       </ion-label>
+      <ion-badge *ngIf="task.priority" [ngClass]="task.priority"
+        >{{ task.priority }}</ion-badge
+      >
       <ion-checkbox
         slot="start"
         [(ngModel)]="task.completed"
@@ -76,6 +79,11 @@
       <ion-select-option *ngFor="let category of categories" [value]="category">
         {{ category }}
       </ion-select-option>
+    </ion-select>
+    <ion-select [(ngModel)]="taskPriority">
+      <ion-select-option value="low">Low</ion-select-option>
+      <ion-select-option value="medium">Medium</ion-select-option>
+      <ion-select-option value="high">High</ion-select-option>
     </ion-select>
     <ion-button expand="block" (click)="addTask()">Add</ion-button>
   </ion-item>
