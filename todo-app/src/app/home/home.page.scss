@@ -2,3 +2,15 @@
   text-decoration: line-through;
   color: gray;
 }
+
+.low {
+  --background: lightgreen;
+}
+
+.medium {
+  --background: yellow;
+}
+
+.high {
+  --background: red;
+}
